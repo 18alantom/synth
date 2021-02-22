@@ -8,6 +8,8 @@ __pycache__/
 
 # Other
 .vscode
+tempimg/
+tempsnd/
 
 # WIP
 Post*.*
