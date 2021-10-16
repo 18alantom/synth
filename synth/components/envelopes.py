@@ -10,11 +10,11 @@ class ADSREnvelope:
     def __init__(self, attack_duration=0.05, decay_duration=0.2, sustain_level=0.7, \
                  release_duration=0.3, sample_rate=44_100):
         """
-        attack_duration : time taken to reach from 0 to 1 in ms.
-        decay_duration : time taken to reach from 1 to `sustain_level` in ms.
+        attack_duration : time taken to reach from 0 to 1 in s.
+        decay_duration : time taken to reach from 1 to `sustain_level` in s.
         sustain_level : the float value of the sustain stage, should typically
             be in the range [0,1]
-        release_duration : time taken to reach 0 from current value in ms.
+        release_duration : time taken to reach 0 from current value in s.
         sample_rate : the sample rate at which the notes are to be consumed.
         """
         self.attack_duration = attack_duration
