@@ -1,5 +1,6 @@
 import itertools
 
+
 class ADSREnvelope:
     """
     A simple ADSR envelope with the four stages attack, decay, release and sustain.
@@ -7,8 +8,15 @@ class ADSREnvelope:
     Has `.trigger_release()` implemented to trigger the release stage of the envelope.
     similarly has `.ended`, a flag to indicate the end of the release stage.
     """
-    def __init__(self, attack_duration=0.05, decay_duration=0.2, sustain_level=0.7, \
-                 release_duration=0.3, sample_rate=44_100):
+
+    def __init__(
+        self,
+        attack_duration=0.05,
+        decay_duration=0.2,
+        sustain_level=0.7,
+        release_duration=0.3,
+        sample_rate=44_100,
+    ):
         """
         attack_duration : time taken to reach from 0 to 1 in s.
         decay_duration : time taken to reach from 1 to `sustain_level` in s.
@@ -22,15 +30,23 @@ class ADSREnvelope:
         self.sustain_level = sustain_level
         self.release_duration = release_duration
         self._sample_rate = sample_rate
-        
+
     def _get_ads_stepper(self):
         steppers = []
         if self.attack_duration > 0:
-            steppers.append(itertools.count(start=0, \
-                step= 1 / (self.attack_duration * self._sample_rate)))
+            steppers.append(
+                itertools.count(
+                    start=0, step=1 / (self.attack_duration * self._sample_rate)
+                )
+            )
         if self.decay_duration > 0:
-            steppers.append(itertools.count(start=1, \
-            step=-(1 - self.sustain_level) / (self.decay_duration  * self._sample_rate)))
+            steppers.append(
+                itertools.count(
+                    start=1,
+                    step=-(1 - self.sustain_level)
+                    / (self.decay_duration * self._sample_rate),
+                )
+            )
         while True:
             l = len(steppers)
             if l > 0:
@@ -44,11 +60,11 @@ class ADSREnvelope:
             else:
                 val = self.sustain_level
             yield val
-    
+
     def _get_r_stepper(self):
         val = 1
         if self.release_duration > 0:
-            release_step = - self.val / (self.release_duration * self._sample_rate)
+            release_step = -self.val / (self.release_duration * self._sample_rate)
             stepper = itertools.count(self.val, step=release_step)
         else:
             val = -1
@@ -59,16 +75,16 @@ class ADSREnvelope:
             else:
                 val = next(stepper)
             yield val
-    
+
     def __iter__(self):
         self.val = 0
         self.ended = False
         self.stepper = self._get_ads_stepper()
         return self
-    
+
     def __next__(self):
         self.val = next(self.stepper)
         return self.val
-        
+
     def trigger_release(self):
         self.stepper = self._get_r_stepper()

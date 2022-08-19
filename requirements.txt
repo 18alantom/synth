@@ -1,0 +1,4 @@
+pyaudio
+numpy
+pygame
+black
