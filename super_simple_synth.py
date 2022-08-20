@@ -10,14 +10,18 @@ NOTE_AMP = 0.1
 
 # -- HELPER FUNCTIONS --
 def get_sin_oscillator(freq=55, amp=1, sample_rate=SAMPLE_RATE):
-    increment = (2 * math.pi * freq)/ sample_rate
-    return (math.sin(v) * amp * NOTE_AMP \
-            for v in itertools.count(start=0, step=increment))
+    increment = (2 * math.pi * freq) / sample_rate
+    return (
+        math.sin(v) * amp * NOTE_AMP for v in itertools.count(start=0, step=increment)
+    )
+
 
 def get_samples(notes_dict, num_samples=BUFFER_SIZE):
-    return [sum([int(next(osc) * 32767) \
-            for _, osc in notes_dict.items()]) \
-            for _ in range(num_samples)]
+    return [
+        sum([int(next(osc) * 32767) for _, osc in notes_dict.items()])
+        for _ in range(num_samples)
+    ]
+
 
 # -- INITIALIZION --
 midi.init()
@@ -29,11 +33,11 @@ stream = pyaudio.PyAudio().open(
     channels=1,
     format=pyaudio.paInt16,
     output=True,
-    frames_per_buffer=BUFFER_SIZE
+    frames_per_buffer=BUFFER_SIZE,
 )
 
 # -- RUN THE SYNTH --
-try: 
+try:
     print("Starting...")
     notes_dict = {}
     while True:
@@ -42,7 +46,7 @@ try:
             samples = get_samples(notes_dict)
             samples = np.int16(samples).tobytes()
             stream.write(samples)
-            
+
         if midi_input.poll():
             # Add or remove notes from notes_dict
             for event in midi_input.read(num_events=16):
@@ -51,8 +55,8 @@ try:
                     del notes_dict[note]
                 elif status == 0x90 and note not in notes_dict:
                     freq = midi.midi_to_frequency(note)
-                    notes_dict[note] = get_sin_oscillator(freq=freq, amp=vel/127)
-                    
+                    notes_dict[note] = get_sin_oscillator(freq=freq, amp=vel / 127)
+
 except KeyboardInterrupt as err:
     midi_input.close()
     stream.close()
